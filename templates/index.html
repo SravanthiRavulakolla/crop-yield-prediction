@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Yield Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f4ff;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .error {
+            background: #fee;
+            border-left-color: #f44;
+            color: #c33;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #0288d1;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #01579b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌾 Crop Yield Prediction</h1>
+        <p class="subtitle">Predict your crop yield using machine learning</p>
+
+        <div class="info-box">
+            ℹ️ Enter your crop parameters below to get an accurate yield prediction
+        </div>
+
+        <form id="predictionForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="temperature">Temperature (°C)</label>
+                    <input type="number" id="temperature" name="temperature" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="humidity">Humidity (%)</label>
+                    <input type="number" id="humidity" name="humidity" step="0.1" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="moisture">Moisture</label>
+                    <input type="number" id="moisture" name="moisture" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="nitrogen">Nitrogen (N)</label>
+                    <input type="number" id="nitrogen" name="nitrogen" step="0.1" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phosphorous">Phosphorous (P)</label>
+                    <input type="number" id="phosphorous" name="phosphorous" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="potassium">Potassium (K)</label>
+                    <input type="number" id="potassium" name="potassium" step="0.1" required>
+                </div>
+            </div>
+
+            <div class="form-row full">
+                <div class="form-group">
+                    <label for="soil_type">Soil Type</label>
+                    <select id="soil_type" name="soil_type" required>
+                        <option value="">-- Select Soil Type --</option>
+                        {% for soil in soil_types %}
+                        <option value="{{ soil }}">{{ soil }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row full">
+                <div class="form-group">
+                    <label for="crop_type">Crop Type</label>
+                    <select id="crop_type" name="crop_type" required>
+                        <option value="">-- Select Crop Type --</option>
+                        {% for crop in crop_types %}
+                        <option value="{{ crop }}">{{ crop }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row full">
+                <div class="form-group">
+                    <label for="fertilizer">Fertilizer Name</label>
+                    <select id="fertilizer" name="fertilizer" required>
+                        <option value="">-- Select Fertilizer --</option>
+                        {% for fert in fertilizers %}
+                        <option value="{{ fert }}">{{ fert }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit">🔮 Predict Yield</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Predicting...</p>
+        </div>
+
+        <div class="result" id="result">
+            <div class="result-label">Predicted Crop Yield</div>
+            <div class="result-value" id="resultValue">0</div>
+            <div class="result-unit">kg/hectare</div>
+        </div>
+
+        <div class="error" id="error">
+            <strong>Error:</strong> <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                temperature: document.getElementById('temperature').value,
+                humidity: document.getElementById('humidity').value,
+                moisture: document.getElementById('moisture').value,
+                nitrogen: document.getElementById('nitrogen').value,
+                phosphorous: document.getElementById('phosphorous').value,
+                potassium: document.getElementById('potassium').value,
+                soil_type: document.getElementById('soil_type').value,
+                crop_type: document.getElementById('crop_type').value,
+                fertilizer: document.getElementById('fertilizer').value
+            };
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('error').classList.remove('show');
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('resultValue').textContent = data.prediction.toLocaleString();
+                    document.getElementById('result').classList.add('show');
+                } else {
+                    document.getElementById('errorMessage').textContent = data.error;
+                    document.getElementById('error').classList.add('show');
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'Failed to connect to server';
+                document.getElementById('error').classList.add('show');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
