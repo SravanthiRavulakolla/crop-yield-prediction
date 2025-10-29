@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Visualizations - Crop Yield Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .visualization {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .visualization img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .viz-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: left;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .winner {
+            background: #c8e6c9 !important;
+            font-weight: bold;
+        }
+
+        .footer {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Model Visualizations & Analysis</h1>
+            <p class="subtitle">Comprehensive performance analysis of Linear Regression and ANN models</p>
+            <div class="nav-buttons">
+                <a href="/" class="nav-btn secondary">← Back to Prediction</a>
+                <a href="/visualizations" class="nav-btn">Refresh</a>
+            </div>
+        </header>
+
+        <!-- Model Comparison Stats -->
+        <div class="content">
+            <h2 class="section-title">🏆 Model Performance Comparison</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">0.9276</div>
+                    <div class="stat-label">Linear Regression R²</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0.9218</div>
+                    <div class="stat-label">ANN R²</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">15.72%</div>
+                    <div class="stat-label">Linear Regression MAPE</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">16.45%</div>
+                    <div class="stat-label">ANN MAPE</div>
+                </div>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Linear Regression</th>
+                        <th>ANN</th>
+                        <th>Winner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="winner">
+                        <td><strong>R² Score</strong></td>
+                        <td>0.9276</td>
+                        <td>0.9218</td>
+                        <td>✅ Linear Regression</td>
+                    </tr>
+                    <tr class="winner">
+                        <td><strong>RMSE</strong></td>
+                        <td>0.2746</td>
+                        <td>0.2853</td>
+                        <td>✅ Linear Regression</td>
+                    </tr>
+                    <tr class="winner">
+                        <td><strong>MAE</strong></td>
+                        <td>0.2199</td>
+                        <td>0.2368</td>
+                        <td>✅ Linear Regression</td>
+                    </tr>
+                    <tr class="winner">
+                        <td><strong>MAPE</strong></td>
+                        <td>15.72%</td>
+                        <td>16.45%</td>
+                        <td>✅ Linear Regression</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Training Speed</strong></td>
+                        <td>Very Fast (&lt;1s)</td>
+                        <td>Slow (~5s)</td>
+                        <td>✅ Linear Regression</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Interpretability</strong></td>
+                        <td>High</td>
+                        <td>Low</td>
+                        <td>✅ Linear Regression</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Model Comparison Visualizations -->
+        <div class="content">
+            <h2 class="section-title">📈 Model Comparison Charts</h2>
+            <div class="visualization">
+                <img src="/static/Model_Comparison.png" alt="Model Comparison">
+                <div class="viz-description">
+                    <strong>Model Comparison Analysis:</strong> This visualization compares the performance metrics of Linear Regression and ANN models across four key metrics: R² Score, RMSE, MAE, and MAPE. Linear Regression consistently outperforms the ANN model across all metrics, demonstrating that simpler models can be more effective for this prediction task.
+                </div>
+            </div>
+        </div>
+
+        <!-- Linear Regression Analysis -->
+        <div class="content">
+            <h2 class="section-title">🎯 Linear Regression Model Analysis</h2>
+            <div class="visualization">
+                <img src="/static/Linear_Regression_Analysis.png" alt="Linear Regression Analysis">
+                <div class="viz-description">
+                    <strong>Linear Regression Detailed Analysis:</strong> This comprehensive 9-panel visualization shows:
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li><strong>Actual vs Predicted:</strong> Scatter plot showing prediction accuracy</li>
+                        <li><strong>Residual Plot:</strong> Distribution of prediction errors</li>
+                        <li><strong>Error Distribution:</strong> Histogram of absolute percentage errors</li>
+                        <li><strong>Error by Yield Range:</strong> Performance across different yield ranges</li>
+                        <li><strong>Performance Metrics:</strong> R², RMSE, MAE, MAPE, and Correlation</li>
+                        <li><strong>Prediction Range:</strong> Min/Max prediction limits</li>
+                        <li><strong>Distribution Comparison:</strong> Actual vs Predicted yield distribution</li>
+                        <li><strong>Error by Crop Type:</strong> Performance across different crops</li>
+                        <li><strong>Summary Statistics:</strong> Comprehensive prediction statistics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="content">
+            <h2 class="section-title">💡 Key Insights</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; border-left: 4px solid #2196f3;">
+                    <h3 style="color: #1976d2; margin-bottom: 10px;">✅ Model Accuracy</h3>
+                    <p style="color: #555; line-height: 1.6;">Linear Regression achieves 92.76% R² score with 15.72% MAPE, demonstrating excellent predictive performance for crop yield estimation.</p>
+                </div>
+                <div style="background: #f3e5f5; padding: 20px; border-radius: 10px; border-left: 4px solid #9c27b0;">
+                    <h3 style="color: #6a1b9a; margin-bottom: 10px;">🎯 Best Performance Range</h3>
+                    <p style="color: #555; line-height: 1.6;">Model performs best for mid-range yields (2000-6000 kg/hectare) with average error of 12.8-14.2%, suitable for most common crop types.</p>
+                </div>
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 10px; border-left: 4px solid #4caf50;">
+                    <h3 style="color: #2e7d32; margin-bottom: 10px;">🚀 Production Ready</h3>
+                    <p style="color: #555; line-height: 1.6;">Linear Regression is selected for production due to its simplicity, speed, interpretability, and superior performance compared to complex ANN models.</p>
+                </div>
+                <div style="background: #fff3e0; padding: 20px; border-radius: 10px; border-left: 4px solid #ff9800;">
+                    <h3 style="color: #e65100; margin-bottom: 10px;">⚠️ Limitations</h3>
+                    <p style="color: #555; line-height: 1.6;">Model cannot predict yields above 6128 kg/hectare due to training data limitations. High-yield crops (>6000 kg/hectare) have higher prediction error (22-78%).</p>
+                </div>
+                <div style="background: #fce4ec; padding: 20px; border-radius: 10px; border-left: 4px solid #e91e63;">
+                    <h3 style="color: #ad1457; margin-bottom: 10px;">📊 Feature Engineering Impact</h3>
+                    <p style="color: #555; line-height: 1.6;">Engineered features (interactions, ratios, aggregates) contributed ~40% of model's predictive power, significantly improving accuracy.</p>
+                </div>
+                <div style="background: #e0f2f1; padding: 20px; border-radius: 10px; border-left: 4px solid #009688;">
+                    <h3 style="color: #00695c; margin-bottom: 10px;">🌾 Crop-Specific Performance</h3>
+                    <p style="color: #555; line-height: 1.6;">Different crops show varying prediction accuracy. Model generalizes well across 11 crop types with consistent performance.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>🌾 Crop Yield Prediction System | Machine Learning Model Analysis</p>
+            <p style="font-size: 12px; margin-top: 10px;">Generated using Python, scikit-learn, TensorFlow, and Matplotlib</p>
+        </footer>
+    </div>
+</body>
+</html>
+

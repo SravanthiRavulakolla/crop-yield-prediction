@@ -38,7 +38,7 @@ fertilizers = sorted(df_original['Fertilizer Name'].unique().tolist())
 
 @app.route('/')
 def index():
-    return render_template('index.html', 
+    return render_template('index.html',
                          soil_types=soil_types,
                          crop_types=crop_types,
                          fertilizers=fertilizers)

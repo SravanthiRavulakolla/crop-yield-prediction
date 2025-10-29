@@ -56,6 +56,13 @@
             font-size: 14px;
         }
 
+        .range-hint {
+            font-size: 12px;
+            color: #999;
+            font-weight: normal;
+            margin-left: 5px;
+        }
+
         input[type="number"],
         select {
             width: 100%;
@@ -205,34 +212,34 @@
         <form id="predictionForm">
             <div class="form-row">
                 <div class="form-group">
-                    <label for="temperature">Temperature (°C)</label>
-                    <input type="number" id="temperature" name="temperature" step="0.1" required>
+                    <label for="temperature">Temperature (°C) <span class="range-hint">8-43</span></label>
+                    <input type="number" id="temperature" name="temperature" step="0.1" min="8" max="43" required>
                 </div>
                 <div class="form-group">
-                    <label for="humidity">Humidity (%)</label>
-                    <input type="number" id="humidity" name="humidity" step="0.1" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="moisture">Moisture</label>
-                    <input type="number" id="moisture" name="moisture" step="0.1" required>
-                </div>
-                <div class="form-group">
-                    <label for="nitrogen">Nitrogen (N)</label>
-                    <input type="number" id="nitrogen" name="nitrogen" step="0.1" required>
+                    <label for="humidity">Humidity (%) <span class="range-hint">20-99</span></label>
+                    <input type="number" id="humidity" name="humidity" step="0.1" min="20" max="99" required>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="phosphorous">Phosphorous (P)</label>
-                    <input type="number" id="phosphorous" name="phosphorous" step="0.1" required>
+                    <label for="moisture">Moisture <span class="range-hint">10-82</span></label>
+                    <input type="number" id="moisture" name="moisture" step="0.1" min="10" max="82" required>
                 </div>
                 <div class="form-group">
-                    <label for="potassium">Potassium (K)</label>
-                    <input type="number" id="potassium" name="potassium" step="0.1" required>
+                    <label for="nitrogen">Nitrogen (N) <span class="range-hint">0-140</span></label>
+                    <input type="number" id="nitrogen" name="nitrogen" step="0.1" min="0" max="140" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phosphorous">Phosphorous (P) <span class="range-hint">0-144</span></label>
+                    <input type="number" id="phosphorous" name="phosphorous" step="0.1" min="0" max="144" required>
+                </div>
+                <div class="form-group">
+                    <label for="potassium">Potassium (K) <span class="range-hint">0-205</span></label>
+                    <input type="number" id="potassium" name="potassium" step="0.1" min="0" max="205" required>
                 </div>
             </div>
 
@@ -292,8 +299,83 @@
     </div>
 
     <script>
+        // Input validation ranges
+        const inputRanges = {
+            temperature: { min: 8, max: 43, label: 'Temperature' },
+            humidity: { min: 20, max: 99, label: 'Humidity' },
+            moisture: { min: 10, max: 82, label: 'Moisture' },
+            nitrogen: { min: 0, max: 140, label: 'Nitrogen' },
+            phosphorous: { min: 0, max: 144, label: 'Phosphorous' },
+            potassium: { min: 0, max: 205, label: 'Potassium' }
+        };
+
+        // Add real-time validation
+        Object.keys(inputRanges).forEach(fieldId => {
+            const input = document.getElementById(fieldId);
+            input.addEventListener('change', function() {
+                const range = inputRanges[fieldId];
+                const value = parseFloat(this.value);
+
+                if (isNaN(value)) {
+                    this.style.borderColor = '#f44';
+                    return;
+                }
+
+                if (value < range.min || value > range.max) {
+                    this.style.borderColor = '#f44';
+                    this.title = `${range.label} must be between ${range.min} and ${range.max}`;
+                } else {
+                    this.style.borderColor = '#e0e0e0';
+                    this.title = '';
+                }
+            });
+        });
+
         document.getElementById('predictionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            // Validate all inputs
+            let isValid = true;
+            let errorMessages = [];
+
+            Object.keys(inputRanges).forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                const value = parseFloat(input.value);
+                const range = inputRanges[fieldId];
+
+                if (isNaN(value)) {
+                    isValid = false;
+                    errorMessages.push(`${range.label} must be a valid number`);
+                    input.style.borderColor = '#f44';
+                } else if (value < range.min || value > range.max) {
+                    isValid = false;
+                    errorMessages.push(`${range.label} must be between ${range.min} and ${range.max}`);
+                    input.style.borderColor = '#f44';
+                } else {
+                    input.style.borderColor = '#e0e0e0';
+                }
+            });
+
+            // Check dropdowns
+            if (!document.getElementById('soil_type').value) {
+                isValid = false;
+                errorMessages.push('Please select a Soil Type');
+            }
+            if (!document.getElementById('crop_type').value) {
+                isValid = false;
+                errorMessages.push('Please select a Crop Type');
+            }
+            if (!document.getElementById('fertilizer').value) {
+                isValid = false;
+                errorMessages.push('Please select a Fertilizer');
+            }
+
+            if (!isValid) {
+                document.getElementById('errorMessage').textContent = errorMessages.join(' | ');
+                document.getElementById('error').classList.add('show');
+                document.getElementById('result').classList.remove('show');
+                return;
+            }
 
             const formData = {
                 temperature: document.getElementById('temperature').value,
